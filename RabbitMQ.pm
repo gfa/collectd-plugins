@@ -38,6 +38,7 @@ In your collectd config:
        Realm "RabbitMQ Management"
        Host "localhost"
        Port "55672"
+       Queues "l3_agent,central,etc" # non optional
       </Plugin>
     </Plugin>
 
