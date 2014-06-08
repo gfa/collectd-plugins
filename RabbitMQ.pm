@@ -55,8 +55,7 @@ my $password = 'pass';
 my $host = 'localhost';
 my $port = 55672;
 my $realm = '';
-#my @queues = ("cinder","nova","neutron","agent","central","ceilometer.collector.metering","consoleauth_fanout_7e57739576be4ed5bdca44850739f591","dhcp_agent","dhcp_agent.controller","dhcp_agent_fanout_e4fc073ad873442aa0cd5fafcf7f4325","fake");
-#my @queues = ("gola");
+my @queues = ("test");
 
 plugin_register (TYPE_READ, 'RabbitMQ', 'my_read');
 plugin_register (TYPE_CONFIG, "RabbitMQ", "rabbit_config");
