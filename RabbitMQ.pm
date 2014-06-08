@@ -3,6 +3,7 @@ use Collectd qw(:all);
 use LWP::UserAgent;
 use HTTP::Request::Common qw(GET);
 use JSON;
+use 5.10.1; 
 
 =head1 NAME
 
@@ -53,6 +54,8 @@ my $password = 'pass';
 my $host = 'localhost';
 my $port = 55672;
 my $realm = '';
+#my @queues = ("cinder","nova","neutron","agent","central","ceilometer.collector.metering","consoleauth_fanout_7e57739576be4ed5bdca44850739f591","dhcp_agent","dhcp_agent.controller","dhcp_agent_fanout_e4fc073ad873442aa0cd5fafcf7f4325","fake");
+#my @queues = ("gola");
 
 plugin_register (TYPE_READ, 'RabbitMQ', 'my_read');
 plugin_register (TYPE_CONFIG, "RabbitMQ", "rabbit_config");
@@ -73,7 +76,9 @@ sub rabbit_config {
             $port = $val;
         } elsif ($key eq 'realm' ) {
             $realm = $val;
-        }
+        } elsif ($key eq 'queues' ) {
+	    @queues = split(/,/,$val);
+	}
     }
   plugin_log(LOG_ERR, "RabbitMQ: reading configuration done");
     return 1;
@@ -117,6 +122,7 @@ sub my_read
   $vl->{'type'} = 'rabbitmq';
 
   foreach my $result (@{$ref}) {
+   if ($result->{'name'} ~~ @queues) {
     $vl->{'plugin_instance'} = $result->{'vhost'};
     $vl->{'type_instance'} = $result->{'name'};
     $vl->{'plugin_instance'} =~ s#[/-]#_#g;
@@ -138,7 +144,7 @@ sub my_read
       $result->{'message_stats'}->{'deliver_get_details'}->{'rate'} ? $result->{'message_stats'}->{'deliver_get_details'}->{'rate'} : 0,
     ];  
     plugin_log(LOG_ERR, "RabbitMQ: dispatching stats for " . $result->{'vhost'} . '/' . $result->{'name'});
-    plugin_dispatch_values($vl);
+    plugin_dispatch_values($vl); }
   }
   plugin_log(LOG_ERR, "RabbitMQ: done processing results");
   return 1;
